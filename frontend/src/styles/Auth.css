@@ -1,0 +1,142 @@
+* {
+  box-sizing: border-box;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-family: Arial, sans-serif;
+}
+
+.auth-left {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  color: white;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-left h1 {
+  font-size: 52px;
+  margin-bottom: 20px;
+}
+
+.auth-left p {
+  font-size: 18px;
+  opacity: 0.95;
+  line-height: 1.7;
+}
+
+.auth-right {
+  background: #f8fafc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-card {
+  width: 420px;
+  background: white;
+  padding: 40px;
+  border-radius: 22px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.06);
+}
+
+.auth-card h2 {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.auth-sub {
+  color: gray;
+  margin-bottom: 25px;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 16px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+.auth-card button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  background: #7c3aed;
+  color: white;
+  font-size: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.auth-card button:hover {
+  opacity: 0.92;
+}
+
+.auth-link {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.auth-link a {
+  color: #7c3aed;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-error {
+  color: #ef4444;
+  margin-top: 12px;
+}
+
+/* TABLET + MOBILE */
+@media (max-width: 900px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-left {
+    padding: 40px 25px;
+    text-align: center;
+  }
+
+  .auth-left h1 {
+    font-size: 40px;
+  }
+
+  .auth-right {
+    padding: 25px;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 430px;
+  }
+}
+
+
+/* SMALL MOBILE */
+@media (max-width: 500px) {
+  .auth-left h1 {
+    font-size: 32px;
+  }
+
+  .auth-left p {
+    font-size: 15px;
+  }
+
+  .auth-card {
+    padding: 28px 20px;
+    border-radius: 16px;
+  }
+
+  .auth-card h2 {
+    font-size: 24px;
+  }
+}
