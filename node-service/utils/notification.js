@@ -2,7 +2,7 @@ const admin = require("../firebaseAdmin");
 
 const sendNotification = async (token) => {
   try {
-    await admin.messaging().send({
+    await admin.messaging().send({   //sends notification through firebase serverss
   token,
   notification: {
     title: "Test Notification",

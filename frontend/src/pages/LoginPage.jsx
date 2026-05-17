@@ -27,7 +27,7 @@ export default function LoginPage() {
     try {
       // STEP 1: Login user first
       const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "http://10.0.2.2:5000/api/auth/login",
         form
       );
 
@@ -45,7 +45,7 @@ export default function LoginPage() {
 
         if (fcmToken) {
           await axios.post(
-            "http://localhost:5000/api/save-token",
+            "http://10.0.2.2:5000/api/save-token",
             { fcmToken },
             {
               headers: {

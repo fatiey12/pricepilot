@@ -26,7 +26,7 @@ export default function RegisterPage() {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "http://10.0.2.2:5000/api/auth/register",
         form
       );
 

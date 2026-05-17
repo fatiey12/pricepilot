@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../styles/Dashboard.css";
+import {
+  generateToken,
+  listenForMessages
+} from "../firebase";
 
-import { generateToken, listenForMessages } from "../firebase";
+import "../styles/Dashboard.css";
 
 export default function DashboardPage() {
 
@@ -14,42 +17,37 @@ export default function DashboardPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ============================================
+  // FEATURED PRODUCTS
+  // ============================================
+
   const featuredProducts = [
+
     {
       title: "iPhone 15 Pro",
       price: 999,
       image:
-        "https://images.unsplash.com/photo-1695048133142-1a20484d2569",
-      store: "MercadoLibre"
+        "https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=1200&auto=format&fit=crop"
     },
+
     {
       title: "PlayStation 5",
       price: 499,
       image:
-        "https://images.unsplash.com/photo-1606813907291-d86efa9b94db",
-      store: "DummyJSON"
+        "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?q=80&w=1200&auto=format&fit=crop"
     },
+
     {
-      title: "MacBook Air M3",
-      price: 1299,
+      title: "Sony Headphones",
+      price: 199,
       image:
-        "https://images.unsplash.com/photo-1517336714739-489689fd1ca8",
-      store: "MercadoLibre"
-    },
-    {
-      title: "AirPods Pro",
-      price: 249,
-      image:
-        "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1",
-      store: "DummyJSON"
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1200&auto=format&fit=crop"
     }
   ];
 
-  const cellStyle = {
-    padding: "14px",
-    borderBottom: "1px solid #eee",
-    textAlign: "left"
-  };
+  // ============================================
+  // BEST DEAL
+  // ============================================
 
   const bestDeal =
     results.length > 0
@@ -57,6 +55,10 @@ export default function DashboardPage() {
           item.price < min.price ? item : min
         )
       : null;
+
+  // ============================================
+  // LOAD SAVED SEARCH
+  // ============================================
 
   useEffect(() => {
 
@@ -76,35 +78,29 @@ export default function DashboardPage() {
 
   }, []);
 
+  // ============================================
+  // FIREBASE NOTIFICATIONS
+  // ============================================
+
   useEffect(() => {
 
     const setupNotifications = async () => {
 
       try {
 
-        const fcmToken =
-          await generateToken();
+        // Generate FCM Token
+        const token = await generateToken();
 
-        if (fcmToken) {
+        console.log("FCM Token:", token);
 
-          await axios.post(
-            "http://localhost:5000/api/save-token",
-            { fcmToken },
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${localStorage.getItem("token")}`
-              }
-            }
-          );
-        }
-
-        listenForMessages(setMessage);
+        // Listen for foreground messages
+        listenForMessages();
 
       } catch (error) {
 
         console.log(
-          "Notification setup skipped"
+          "Notifications unavailable:",
+          error
         );
       }
     };
@@ -112,6 +108,10 @@ export default function DashboardPage() {
     setupNotifications();
 
   }, []);
+
+  // ============================================
+  // SEARCH
+  // ============================================
 
   const searchProduct = async () => {
 
@@ -122,7 +122,7 @@ export default function DashboardPage() {
       setLoading(true);
 
       const res = await axios.get(
-        `http://localhost:5000/api/search?product=${product}`
+        `http://10.0.2.2:5000/api/search?product=${product}`
       );
 
       const fetchedResults =
@@ -142,7 +142,7 @@ export default function DashboardPage() {
 
       if (fetchedResults.length === 0) {
 
-        setMessage("No products found.");
+        setMessage("No products found");
 
         setTimeout(() => {
           setMessage("");
@@ -155,7 +155,7 @@ export default function DashboardPage() {
 
       setResults([]);
 
-      setMessage("Search failed.");
+      setMessage("Search failed");
 
       setTimeout(() => {
         setMessage("");
@@ -167,12 +167,16 @@ export default function DashboardPage() {
     }
   };
 
+  // ============================================
+  // WATCHLIST
+  // ============================================
+
   const addToWatchlist = async (item) => {
 
     try {
 
       await axios.post(
-        "http://localhost:5000/api/watchlist",
+        "http://10.0.2.2:5000/api/watchlist",
         {
           productName: item.title,
           store: item.store,
@@ -186,17 +190,15 @@ export default function DashboardPage() {
         }
       );
 
-      setMessage("Added to Watchlist.");
+      setMessage("Added to Watchlist");
 
       setTimeout(() => {
         setMessage("");
       }, 2000);
 
-    } catch (error) {
+    } catch {
 
-      console.log(error);
-
-      setMessage("Failed to add.");
+      setMessage("Failed to add");
 
       setTimeout(() => {
         setMessage("");
@@ -204,258 +206,238 @@ export default function DashboardPage() {
     }
   };
 
+  // ============================================
+  // LOGOUT
+  // ============================================
+
   const logout = () => {
+
     localStorage.clear();
+
     navigate("/");
   };
 
   return (
 
-    <div className="dashboard-layout">
+    <div className="dashboard-container">
 
-      {/* Sidebar */}
-      <div className="sidebar">
+      {/* HEADER */}
 
-        <div className="logo">
-          PricePilot
+      <div className="dashboard-header">
+
+        <div>
+
+          <p className="welcome-text">
+            Welcome Back 👋
+          </p>
+
+          <h1 className="dashboard-title">
+            PricePilot
+          </h1>
+
         </div>
 
-        <div className="nav-item active-nav">
-          Dashboard
-        </div>
-
-        <div
-          className="nav-item"
-          onClick={() => navigate("/watchlist")}
-        >
-          Watchlist
-        </div>
-
-        <div
-          className="nav-item"
-          onClick={logout}
-        >
-          Logout
+        <div className="profile-avatar">
+          F
         </div>
 
       </div>
 
-      {/* Main Content */}
-      <div className="main-content">
+      {/* SEARCH */}
 
-        {/* Topbar */}
-        <div className="topbar">
+      <div className="search-section">
 
-          <div>
+        <div className="search-bar">
 
-            <h1>Dashboard</h1>
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={product}
+            onChange={(e) =>
+              setProduct(e.target.value)
+            }
+            onKeyDown={(e) =>
+              e.key === "Enter" &&
+              searchProduct()
+            }
+          />
 
-            <p
-              style={{
-                color: "#777",
-                marginTop: "10px"
-              }}
-            >
-              Compare prices across trusted stores
-            </p>
-
-          </div>
-
-          <div className="user-box">
-            Fatima
-          </div>
+          <button onClick={searchProduct}>
+            {loading ? "..." : "Go"}
+          </button>
 
         </div>
 
-        {/* Stats */}
-        <div className="stats-grid">
+      </div>
 
-          <div className="stat-card">
-            <div className="stat-title">
-              Results
-            </div>
+      {/* CATEGORIES */}
 
-            <div className="stat-value">
-              {results.length}
-            </div>
-          </div>
+      <div className="categories-row">
 
-          <div className="stat-card">
-            <div className="stat-title">
-              Watchlist
-            </div>
-
-            <div className="stat-value">
-              8
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-title">
-              Stores
-            </div>
-
-            <div className="stat-value">
-              {
-                new Set(
-                  results.map((item) => item.store)
-                ).size
-              }
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-title">
-              Lowest Price
-            </div>
-
-            <div className="stat-value">
-              {bestDeal
-                ? `$${bestDeal.price}`
-                : "$0"}
-            </div>
-          </div>
-
+        <div className="category-pill">
+          Phones
         </div>
 
-        {/* Marketplace Section */}
-        <div style={{ marginBottom: "35px" }}>
+        <div className="category-pill">
+          Laptops
+        </div>
+
+        <div className="category-pill">
+          Gaming
+        </div>
+
+        <div className="category-pill">
+          Audio
+        </div>
+
+      </div>
+
+      {/* BEST DEAL */}
+
+      <div className="smart-card">
+
+        <p className="smart-label">
+          Smart Price Tracking
+        </p>
+
+        <h2>
+          {
+            bestDeal
+              ? `Best deal from $${bestDeal.price}`
+              : "Track Prices Instantly"
+          }
+        </h2>
+
+      </div>
+
+      {/* TRENDING */}
+
+      <div className="section-header">
+
+        <h2>
+          Trending Deals
+        </h2>
+
+      </div>
+
+      <div className="featured-scroll">
+
+        {featuredProducts.map((item, index) => (
 
           <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "18px"
-            }}
+            className="featured-card"
+            key={index}
           >
 
-            <div>
+            <img
+              src={item.image}
+              alt={item.title}
+              onError={(e) => {
+                e.target.src =
+                  "https://via.placeholder.com/300";
+              }}
+            />
 
-              <h2>
-                Trending Deals
-              </h2>
+            <div className="featured-info">
 
-              <p style={{ color: "#777" }}>
-                Popular products across marketplaces
+              <h3>
+                {item.title}
+              </h3>
+
+              <p>
+                ${item.price}
               </p>
 
             </div>
 
-            <div
-              style={{
-                background: "#111827",
-                color: "white",
-                padding: "8px 14px",
-                borderRadius: "20px",
-                fontSize: "14px"
-              }}
-            >
-              Live Marketplace Data
-            </div>
+          </div>
+
+        ))}
+
+      </div>
+
+      {/* MESSAGE */}
+
+      {message && (
+
+        <div className="message-box">
+          {message}
+        </div>
+
+      )}
+
+      {/* RESULTS */}
+
+      {results.length > 0 && (
+
+        <>
+
+          <div className="section-header">
+
+            <h2>
+              Search Results
+            </h2>
 
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "20px"
-            }}
-          >
+          <div className="results-grid">
 
-            {featuredProducts.map((item, index) => (
+            {results.map((item, index) => (
 
               <div
+                className="result-card"
                 key={index}
-                style={{
-                  background: "white",
-                  borderRadius: "18px",
-                  overflow: "hidden",
-                  boxShadow:
-                    "0 6px 18px rgba(0,0,0,0.08)"
-                }}
               >
 
-                <div
-                  style={{
-                    position: "relative"
+                {
+                  bestDeal?.price === item.price && (
+
+                    <div className="best-deal-badge">
+                      Best
+                    </div>
+
+                  )
+                }
+
+                <img
+                  src={
+                    item.image ||
+                    "https://via.placeholder.com/300"
+                  }
+                  alt={item.title}
+                  className="product-image"
+                  onError={(e) => {
+                    e.target.src =
+                      "https://via.placeholder.com/300";
                   }}
-                >
+                />
 
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    style={{
-                      width: "100%",
-                      height: "180px",
-                      objectFit: "cover"
-                    }}
-                  />
+                <div className="result-content">
 
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "12px",
-                      left: "12px",
-                      background: "#10b981",
-                      color: "white",
-                      padding: "6px 10px",
-                      borderRadius: "20px",
-                      fontSize: "12px",
-                      fontWeight: "600"
-                    }}
-                  >
-                    Trending
-                  </div>
-
-                </div>
-
-                <div style={{ padding: "16px" }}>
-
-                  <h3
-                    style={{
-                      marginBottom: "10px"
-                    }}
-                  >
+                  <h3>
                     {item.title}
                   </h3>
 
-                  <p
-                    style={{
-                      color:
-                        item.store === "MercadoLibre"
-                          ? "#eab308"
-                          : "#2563eb",
-                      fontWeight: "600",
-                      marginBottom: "12px"
-                    }}
-                  >
+                  <p className="store-name">
                     {item.store}
                   </p>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center"
-                    }}
-                  >
+                  <div className="price-row">
 
-                    <h2>${item.price}</h2>
+                    <h2>
+                      ${item.price}
+                    </h2>
+
+                  </div>
+
+                  <div className="action-buttons">
 
                     <button
-                      style={{
-                        background: "#111827",
-                        color: "white",
-                        border: "none",
-                        padding: "10px 14px",
-                        borderRadius: "10px",
-                        cursor: "pointer"
-                      }}
+                      onClick={() =>
+                        addToWatchlist(item)
+                      }
                     >
-                      View Deal
+                      Watchlist
                     </button>
 
                   </div>
@@ -463,314 +445,108 @@ export default function DashboardPage() {
                 </div>
 
               </div>
+
             ))}
 
           </div>
 
-        </div>
+          {/* COMPARISON TABLE */}
 
-        {/* Search */}
-        <div className="search-box">
+          <div className="comparison-section">
 
-          <h3>
-            Find Best Deals
-          </h3>
+            <div className="section-header">
 
-          <div className="search-row">
+              <h2>
+                Price Comparison
+              </h2>
 
-            <input
-              placeholder="Search iPhone, Laptop, PS5..."
-              value={product}
-              onChange={(e) =>
-                setProduct(e.target.value)
-              }
-              onKeyDown={(e) =>
-                e.key === "Enter" &&
-                searchProduct()
-              }
-            />
+            </div>
 
-            <button onClick={searchProduct}>
-              {
-                loading
-                  ? "Searching..."
-                  : "Search"
-              }
-            </button>
+            <div className="comparison-table">
 
-          </div>
-
-        </div>
-
-        {/* Message */}
-        {message && (
-          <div className="success-msg">
-            {message}
-          </div>
-        )}
-
-        {/* Smart Recommendation */}
-        {bestDeal && (
-
-          <div
-            style={{
-              background:
-                "linear-gradient(to right, #111827, #1f2937)",
-              color: "white",
-              padding: "20px",
-              borderRadius: "16px",
-              marginBottom: "25px",
-              boxShadow:
-                "0 8px 20px rgba(0,0,0,0.15)"
-            }}
-          >
-
-            <h2
-              style={{
-                marginBottom: "10px"
-              }}
-            >
-              Smart Recommendation
-            </h2>
-
-            <p
-              style={{
-                fontSize: "16px"
-              }}
-            >
-              Best current deal found at{" "}
-              <strong>
-                {bestDeal.store}
-              </strong>
-            </p>
-
-            <p
-              style={{
-                marginTop: "8px"
-              }}
-            >
-              Lowest available price:
-              <strong>
-                {" "}$
-                {bestDeal.price}
-              </strong>
-            </p>
-
-            <p
-              style={{
-                marginTop: "8px",
-                color: "#34d399"
-              }}
-            >
-              Recommendation: Buy Now
-            </p>
-
-          </div>
-        )}
-
-        {/* Product Cards */}
-        <div className="results-grid">
-
-          {results.map((item, index) => (
-
-            <div
-              className="result-card"
-              key={index}
-              style={{
-                border:
-                  bestDeal?.price === item.price
-                    ? "2px solid #10b981"
-                    : "none"
-              }}
-            >
-
-              {bestDeal?.price === item.price && (
+              {results.map((item, index) => (
 
                 <div
-                  className="badge"
-                  style={{
-                    background: "#10b981"
-                  }}
+                  key={index}
+                  className="comparison-row"
                 >
-                  Best Deal
-                </div>
-              )}
 
-              {item.image && (
+                  <div className="comparison-left">
 
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="product-img"
-                />
-              )}
-
-              <h3 className="product-title">
-                {item.title}
-              </h3>
-
-              <p
-                className="store"
-                style={{
-                  fontWeight: "600",
-                  color:
-                    item.store === "MercadoLibre"
-                      ? "#eab308"
-                      : "#2563eb"
-                }}
-              >
-                {item.store}
-              </p>
-
-              <div className="price">
-                ${item.price}
-              </div>
-
-              <div className="rating">
-                ⭐ {item.rating || 4.0}
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  marginTop: "12px",
-                  flexWrap: "wrap"
-                }}
-              >
-
-                <button
-                  onClick={() =>
-                    addToWatchlist(item)
-                  }
-                >
-                  Watchlist
-                </button>
-
-                <button
-                  onClick={() =>
-                    navigate(
-                      `/history/${item.id || index}`
-                    )
-                  }
-                  style={{
-                    background: "#111827",
-                    color: "white"
-                  }}
-                >
-                  History
-                </button>
-
-              </div>
-
-            </div>
-          ))}
-
-        </div>
-
-        {/* Comparison Table */}
-        {results.length > 0 && (
-
-          <div
-            style={{
-              marginTop: "40px"
-            }}
-          >
-
-            <h2
-              style={{
-                marginBottom: "15px"
-              }}
-            >
-              Price Comparison Table
-            </h2>
-
-            <div
-              style={{
-                overflowX: "auto"
-              }}
-            >
-
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  background: "white",
-                  borderRadius: "12px",
-                  overflow: "hidden"
-                }}
-              >
-
-                <thead>
-
-                  <tr
-                    style={{
-                      background: "#111827",
-                      color: "white"
-                    }}
-                  >
-
-                    <th style={cellStyle}>
-                      Product
-                    </th>
-
-                    <th style={cellStyle}>
-                      Store
-                    </th>
-
-                    <th style={cellStyle}>
-                      Price
-                    </th>
-
-                    <th style={cellStyle}>
-                      Rating
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {results.map((item, index) => (
-
-                    <tr
-                      key={index}
-                      style={{
-                        background:
-                          bestDeal?.price === item.price
-                            ? "#ecfdf5"
-                            : "white"
+                    <img
+                      src={
+                        item.image ||
+                        "https://via.placeholder.com/100"
+                      }
+                      alt={item.title}
+                      className="comparison-image"
+                      onError={(e) => {
+                        e.target.src =
+                          "https://via.placeholder.com/100";
                       }}
-                    >
+                    />
 
-                      <td style={cellStyle}>
+                    <div className="comparison-info">
+
+                      <h4>
                         {item.title}
-                      </td>
+                      </h4>
 
-                      <td style={cellStyle}>
+                      <p>
                         {item.store}
-                      </td>
+                      </p>
 
-                      <td style={cellStyle}>
-                        ${item.price}
-                      </td>
+                    </div>
 
-                      <td style={cellStyle}>
-                        ⭐ {item.rating || 4.0}
-                      </td>
+                  </div>
 
-                    </tr>
-                  ))}
+                  <div className="comparison-right">
 
-                </tbody>
+                    <h3>
+                      ${item.price}
+                    </h3>
 
-              </table>
+                    <span>
+                      ⭐ {item.rating || 4.0}
+                    </span>
+
+                  </div>
+
+                </div>
+
+              ))}
 
             </div>
 
           </div>
-        )}
+
+        </>
+
+      )}
+
+      {/* BOTTOM NAV */}
+
+      <div className="bottom-nav">
+
+        <div className="bottom-item active-bottom">
+          Home
+        </div>
+
+        <div
+          className="bottom-item"
+          onClick={() =>
+            navigate("/watchlist")
+          }
+        >
+          Watchlist
+        </div>
+
+        <div
+          className="bottom-item"
+          onClick={logout}
+        >
+          Logout
+        </div>
 
       </div>
 

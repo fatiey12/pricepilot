@@ -29,18 +29,23 @@ export default function HistoryPage() {
   }, []);
 
   const fetchHistory = async () => {
+
     try {
 
       const res = await axios.get(
-        `http://localhost:5000/api/history/${productId}`
+        `http://10.0.2.2:5000/api/history/${productId}`
       );
 
-      setData(res.data.history || []);
+      setData(
+        res.data.history || []
+      );
 
     } catch (error) {
+
       console.log(error);
 
     } finally {
+
       setLoading(false);
     }
   };
@@ -52,12 +57,20 @@ export default function HistoryPage() {
 
   const highestPrice =
     data.length > 0
-      ? Math.max(...data.map((d) => d.price))
+      ? Math.max(
+          ...data.map(
+            (d) => d.price
+          )
+        )
       : 0;
 
   const lowestPrice =
     data.length > 0
-      ? Math.min(...data.map((d) => d.price))
+      ? Math.min(
+          ...data.map(
+            (d) => d.price
+          )
+        )
       : 0;
 
   return (
@@ -66,127 +79,188 @@ export default function HistoryPage() {
       style={{
         minHeight: "100vh",
         background: "#f5f7fb",
-        padding: "40px"
+        padding: "20px",
+        paddingBottom: "100px"
       }}
     >
 
-      {/* Top Section */}
+      {/* HEADER */}
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "30px"
+          justifyContent:
+            "space-between",
+          alignItems:
+            "center",
+          marginBottom: "25px"
         }}
       >
 
         <div>
-          <h1
+
+          <p
             style={{
-              fontSize: "32px",
-              marginBottom: "10px"
+              color: "#777",
+              marginBottom: "8px"
             }}
           >
-            Product Price Analytics
+            Product Tracking
+          </p>
+
+          <h1
+            style={{
+              fontSize: "30px",
+              fontWeight: "700"
+            }}
+          >
+            Price History
           </h1>
 
-          <p style={{ color: "#666" }}>
-            Historical pricing insights and trends
-          </p>
         </div>
 
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() =>
+            navigate("/dashboard")
+          }
           style={{
-            background: "#ffffffff",
+            background: "#7c3aed",
             color: "white",
             border: "none",
+            borderRadius: "14px",
             padding: "12px 18px",
-            borderRadius: "10px",
-            cursor: "pointer",
-            fontWeight: "400"
+            fontWeight: "600",
+            cursor: "pointer"
           }}
         >
-          Back to Dashboard
+          Back
         </button>
 
       </div>
 
-      {/* Analytics Cards */}
+      {/* HERO CARD */}
+      <div
+        style={{
+          background:
+            "linear-gradient(to right, #7c3aed, #7c3aed)",
+          borderRadius: "24px",
+          padding: "24px",
+          color: "white",
+          marginBottom: "28px",
+          boxShadow:
+            "0 10px 25px rgba(0,0,0,0.15)"
+        }}
+      >
+
+        <p
+          style={{
+            color: "#9ca3af",
+            marginBottom: "10px"
+          }}
+        >
+          Current Best Price
+        </p>
+
+        <h1
+          style={{
+            fontSize: "42px",
+            marginBottom: "12px"
+          }}
+        >
+          ${latestPrice}
+        </h1>
+
+        <p
+          style={{
+            color: "#34d399",
+            fontWeight: "600"
+          }}
+        >
+          Live market tracking enabled
+        </p>
+
+      </div>
+
+      {/* STATS */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns:
-            "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "20px",
-          marginBottom: "30px"
+            "repeat(auto-fit, minmax(160px, 1fr))",
+          gap: "16px",
+          marginBottom: "28px"
         }}
       >
 
+        {/* Highest */}
         <div
           style={{
             background: "white",
+            borderRadius: "20px",
             padding: "20px",
-            borderRadius: "16px",
             boxShadow:
-              "0 4px 12px rgba(0,0,0,0.08)"
+              "0 4px 12px rgba(0,0,0,0.06)"
           }}
         >
-          <p style={{ color: "#666" }}>
-            Current Price
+
+          <p
+            style={{
+              color: "#777",
+              marginBottom: "8px"
+            }}
+          >
+            Highest
           </p>
 
-          <h2 style={{ marginTop: "10px" }}>
-            ${latestPrice}
-          </h2>
-        </div>
-
-        <div
-          style={{
-            background: "white",
-            padding: "20px",
-            borderRadius: "16px",
-            boxShadow:
-              "0 4px 12px rgba(0,0,0,0.08)"
-          }}
-        >
-          <p style={{ color: "#666" }}>
-            Highest Price
-          </p>
-
-          <h2 style={{ marginTop: "10px" }}>
+          <h2
+            style={{
+              fontSize: "28px"
+            }}
+          >
             ${highestPrice}
           </h2>
+
         </div>
 
+        {/* Lowest */}
         <div
           style={{
             background: "white",
+            borderRadius: "20px",
             padding: "20px",
-            borderRadius: "16px",
             boxShadow:
-              "0 4px 12px rgba(0,0,0,0.08)"
+              "0 4px 12px rgba(0,0,0,0.06)"
           }}
         >
-          <p style={{ color: "#666" }}>
-            Lowest Price
+
+          <p
+            style={{
+              color: "#777",
+              marginBottom: "8px"
+            }}
+          >
+            Lowest
           </p>
 
-          <h2 style={{ marginTop: "10px" }}>
+          <h2
+            style={{
+              fontSize: "28px"
+            }}
+          >
             ${lowestPrice}
           </h2>
+
         </div>
 
       </div>
 
-      {/* Chart Container */}
+      {/* CHART SECTION */}
       <div
         style={{
           background: "white",
-          borderRadius: "20px",
-          padding: "25px",
+          borderRadius: "24px",
+          padding: "22px",
           boxShadow:
-            "0 6px 18px rgba(0,0,0,0.08)"
+            "0 8px 24px rgba(0,0,0,0.06)"
         }}
       >
 
@@ -195,84 +269,115 @@ export default function HistoryPage() {
             marginBottom: "20px"
           }}
         >
-          <h2>
-            Price Trend Analysis
+
+          <h2
+            style={{
+              marginBottom: "8px"
+            }}
+          >
+            Market Trend
           </h2>
 
-          <p style={{ color: "#666" }}>
-            Market price fluctuations over time
+          <p
+            style={{
+              color: "#777"
+            }}
+          >
+            Monitor product price movement
           </p>
+
         </div>
 
         {loading ? (
 
           <div
             style={{
-              height: "400px",
+              height: "350px",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
+              justifyContent:
+                "center",
+              alignItems:
+                "center",
+              color: "#777"
             }}
           >
-            Loading analytics...
+            Loading price history...
           </div>
 
         ) : (
 
-          <div style={{ width: "100%", height: 450 }}>
+          <div
+            style={{
+              width: "100%",
+              height: 380
+            }}
+          >
 
             <ResponsiveContainer>
 
               <AreaChart data={data}>
 
                 <defs>
+
                   <linearGradient
-                    id="colorPrice"
+                    id="priceGradient"
                     x1="0"
                     y1="0"
                     x2="0"
                     y2="1"
                   >
+
                     <stop
                       offset="5%"
-                      stopColor="#7c3aed"
-                      stopOpacity={0.4}
+                      stopColor="#10b981"
+                      stopOpacity={0.35}
                     />
 
                     <stop
                       offset="95%"
-                      stopColor="#7c3aed"
+                      stopColor="#10b981"
                       stopOpacity={0}
                     />
+
                   </linearGradient>
+
                 </defs>
 
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#eee"
+                  stroke="#f0f0f0"
                 />
 
-                <XAxis dataKey="date" />
+                <XAxis
+                  dataKey="date"
+                  tick={{
+                    fill: "#777"
+                  }}
+                />
 
-                <YAxis />
+                <YAxis
+                  tick={{
+                    fill: "#777"
+                  }}
+                />
 
                 <Tooltip />
 
                 <Area
                   type="monotone"
                   dataKey="price"
-                  stroke="#7c3aed"
+                  stroke="#10b981"
                   fillOpacity={1}
-                  fill="url(#colorPrice)"
+                  fill="url(#priceGradient)"
                 />
 
                 <Line
                   type="monotone"
                   dataKey="price"
-                  stroke="#7c3aed"
+                  stroke="#10b981"
                   strokeWidth={4}
                   dot={{
-                    r: 5
+                    r: 4
                   }}
                 />
 
@@ -283,6 +388,59 @@ export default function HistoryPage() {
           </div>
 
         )}
+
+      </div>
+
+      {/* BOTTOM NAV */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: "white",
+          borderTop:
+            "1px solid #eee",
+          display: "flex",
+          justifyContent:
+            "space-around",
+          padding: "16px 0",
+          zIndex: 100
+        }}
+      >
+
+        <div
+          onClick={() =>
+            navigate("/dashboard")
+          }
+          style={{
+            color: "#777",
+            cursor: "pointer"
+          }}
+        >
+          Home
+        </div>
+
+        <div
+          style={{
+            color: "#10b981",
+            fontWeight: "600"
+          }}
+        >
+          History
+        </div>
+
+        <div
+          onClick={() =>
+            navigate("/watchlist")
+          }
+          style={{
+            color: "#777",
+            cursor: "pointer"
+          }}
+        >
+          Watchlist
+        </div>
 
       </div>
 
